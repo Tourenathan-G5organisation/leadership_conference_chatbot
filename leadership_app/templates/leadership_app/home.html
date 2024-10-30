@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;800&display=swap"
+    rel="stylesheet">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  {% load static %}
+  <link rel="icon" href="{% static 'converter_app/design_assist.jpeg' %}" type="image/jpeg">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  {% comment %} <script src="{% static 'converter_app/js/script.js'%}"></script> {% endcomment %}
+
+  <style>
+    body{
+      font-weight: 'Roboto', sans-serif;
+    }
+      .sidebar {
+            transition: left 0.5s;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: -300px; 
+            width: 300px;
+            background-color: #2c2c2c;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+      .sidebar.open {
+            left: 0; /* Show sidebar */
+        }
+      .icon-only{
+        display: flex;
+        align-items: center;
+      }
+
+      .content {
+            display: none; /* Hide all content sections by default */
+        }
+
+        .content.active {
+            display: block; /* Show active content section */
+        }
+
+       pre {
+          white-space: pre-wrap; /* CSS3 */
+      } 
+
+      .dot {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        margin: 0 0.3rem;
+        border-radius: 50%;
+        background: #007bff;
+        animation: bounce 1s infinite;
+    }
+
+    .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+        0%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-1rem);
+        }
+    }
+  </style>
+
+  <style>        
+    .typing {
+                  display: inline-block;
+                  border-right: 2px solid;            
+                  white-space: pre-wrap;            
+                  overflow: hidden;            
+                  animation: typing 5s steps(30, end), blink 0.75s step-end infinite;        
+                }        @keyframes typing {            
+                  from {                
+                    width: 0;            
+                  }            to {                
+                    width: 100%;            
+                  }        
+                }        
+                @keyframes blink {            
+                  50% {                
+                    border-color: transparent;            
+                  }        
+                }    
+
+  </style>
+
+</head>
+{% load static %}
+<body class="font-[roboto] bg-no-repeat bg-cover bg-center vh-100 bg-cover bg-center h-screen" style="background-image: url('{% static "leadership_app/background.jpeg" %}');">
+  {% comment %} {% include 'leadership_app/components/header.html' %} {% endcomment %}
+
+  <div id="sidebar"  class="sidebar p-2">
+    <div class="text-gray-100 text-xl">
+      
+      
+      <div class="mt-12">
+        <div class="content-center cursor-pointer pl-28 hover: hover:bg-[#ffffff]" onclick="">
+          <i class="bi bi-x-circle text-5xl" style="color: #FFCB00;"></i>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+    <div id="create-brs" class="content text-center w-full mt-48" style="display: none;">
+      <h2 class="text-2xl text-center mt-5">Create BRS Content</h2>
+      <a href="/specification_srs">
+        <button class="text-center w-72 h-10 bg-yellow-400 rounded-lg mt-20">
+          <span class="text-lg" style="color: white;">Enter specifications</span>                
+        </button>
+      </a>
+      
+    </div>
+    
+  {% include 'leadership_app/components/chat.html'%}
+
+    <div id="logout" class="content">
+        <h2>Logout Content</h2>
+        <p>This is the content for logging out.</p>
+    </div>
+  </div>
+
+<script>
+ 
+function clearChatArea() {
+   document.getElementById('chatArea').innerHTML = '';
+   conversationHistory = []; 
+ }
+
+let conversationHistory = [];
+async function submitQuestion() {
+    const userInput = document.getElementById('userInput').value;
+    const chatArea = document.getElementById('chatArea');
+
+
+    response = generateResponse(userInput);
+
+    if (userInput.trim() === "") return; // Prevent empty submissions
+
+    // Create the outer div element
+    const userMessage = document.createElement('div');
+    userMessage.className = 'd-flex flex-row justify-content-end mb-2 bg-blue-100';
+
+    // Create the img element
+    const img = document.createElement('img');
+    img.src = "{% static 'leadership_app/profile.jfif' %}" ;
+    img.alt = 'LC GPT';
+    img.style.width = '45px';
+    img.style.height = '100%';
+    img.className = 'rounded-full p-1';
+
+    // Create the inner div element
+    const innerDiv = document.createElement('div');
+
+    // Create the p element
+    const p = document.createElement('pre');
+    p.className = 'p-2 ms-3 mb-1 rounded-3 bg-body-tertiary';
+    p.textContent = "You: " + userInput;
+
+    // Append the p element to the inner div
+    innerDiv.appendChild(p);
+
+    // Append the img and inner div to the outer div
+    
+    userMessage.appendChild(innerDiv);
+    userMessage.appendChild(img);
+
+    // Append the outer div to the desired parent element
+    chatArea.appendChild(userMessage);
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    const loader = document.createElement('div');
+    loader.id = 'loadingIndicator';
+    loader.className = 'flex space-x-2 mt-3';
+
+    // Create the inner div elements
+    for (let i = 0; i < 3; i++) {
+        const innerDiv = document.createElement('div');
+        innerDiv.className = 'w-3 h-3 bg-yellow-300 rounded-full dot';
+        loader.appendChild(innerDiv);
+    }
+
+    // Append the new div to the desired parent element
+    chatArea.appendChild(loader);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    
+    conversationHistory.push({ role: "user", content: userInput });
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.style.display = 'block'
+
+    try {
+      const response = await generateResponse(userInput)
+      // Hide loading indicator
+      loadingIndicator.style.display = 'none';
+
+   // Create the outer div element
+    const botResponse = document.createElement('div');
+    botResponse.className = 'd-flex flex-row justify-content-start mb-2 bg-yellow-100';
+
+    // Create the img element
+    const img = document.createElement('img');
+    img.src = "{% static 'leadership_app/leadership.jpeg' %}" ;
+    img.alt = 'LC GPT';
+    img.style.width = '45px';
+    img.style.height = '100%';
+    img.className = 'rounded-full';
+
+    // Create the inner div element
+    const innerDiv = document.createElement('div');
+
+    // Create the p element
+    const p = document.createElement('pre');
+    p.className = 'p-1 ms-3 mb-1 rounded-3 bg-body-tertiary';
+    p.innerHTML = "Leadership Conference(LC) GPT: " + response;
+
+    // Append the p element to the inner div
+    innerDiv.appendChild(p);
+
+    // Append the img and inner div to the outer div
+    botResponse.appendChild(img);
+    botResponse.appendChild(innerDiv);
+
+
+      if (chatArea.lastElementChild) {
+        chatArea.removeChild(chatArea.lastElementChild);
+        }
+
+      chatArea.appendChild(botResponse);
+
+      conversationHistory.push({ role: "assistant", content: response });
+
+
+    } catch (error) {
+        console.error('Error:', error);
+        // Hide loading indicator in case of error
+        loadingIndicator.style.display = 'none';
+    }
+
+    // Clear the input field
+    document.getElementById('userInput').value = '';
+
+    // Scroll to the bottom of the chat area
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function generateResponse(input) {
+  document.getElementById('userInput').disabled = true;
+  document.getElementById('chatSubmissionButton').disabled = true;
+  event.preventDefault();
+  const endpoint = 'http://127.0.0.1:8000/message/'; // Replace with your chatbot endpoint URL
+  const payload = {
+      question: input,
+      conversation: conversationHistory
+  };
+
+  try {
+      const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+      });
+
+      console.log("response generated succesfully !")
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(data)
+      return data.response; // Adjust based on your API's response structure
+  } catch (error) {
+      console.error('Error fetching chatbot response:', error);
+      return 'Sorry, something went wrong. Please try again later.';
+  }
+  finally{
+      document.getElementById('userInput').disabled = false
+      document.getElementById('chatSubmissionButton').disabled = false;
+    }
+}
+
+
+document.getElementById('validateButton').addEventListener('click', function() {
+  const fileInput = document.getElementById('file');
+  const filePath = fileInput.value;
+  if (filePath) {
+    document.getElementById('filePath').textContent = `Selected file: ${filePath}`;
+  } else {
+    document.getElementById('filePath').textContent = 'No file selected.';
+  }
+});
+
+async function generationOnGoing(){
+  const loader = document.getElementById('loader-srs-generation')
+  loader.style.display = 'flex';
+}
+
+function logout(){
+  alert('logging out .....');
+  window.location.href = '/login/';
+}
+
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+</body>
+
+</html>

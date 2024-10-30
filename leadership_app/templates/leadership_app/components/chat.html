@@ -1,0 +1,30 @@
+<form method="POST" id="chatForm" onsubmit="submitQuestion(); return false;">
+    {% csrf_token %}
+    <div id="chatbot" class="content mt-0" style="display: block; height: 100vh; position: relative;">
+        <div class="flex flex-col items-center justify-start p-4" style="height: 100%;">
+
+            <div class="xl:w-1/2 lg:w-2/3 w-full xm:w-auto h- mb-4 border rounded-lg p-2 h-96 overflow-y-auto" id="chatArea" style="flex-grow: 1;">
+                <!-- Chat messages will appear here -->
+            </div>
+            
+            <div class="flex xl:w-1/2 lg:w-2/3 w-full xm:w-auto rounded-xl bg-white justify-center items-center p-2">
+                {% load static %}
+                <img src="{% static 'leadership_app/leadership.jpeg' %}" class="h-14 rounded-full" alt="logo">
+
+                <textarea type="text" id="userInput" placeholder="What do you want to ask ?" class="mr-2 ml-2 border border-yellow-500 p-2 rounded-l-lg flex-grow"></textarea>
+                <button id="chatSubmissionButton" class="text-white p-2 rounded-full h-10 w-10" type="submit">
+                    <i class="bi bi-send text-yellow-500 text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>    
+</form>
+
+<script>
+    document.getElementById('userInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent the default action (new line in textarea)
+            submitQuestion(); // Call the submitQuestion function
+        }
+    });
+</script>
