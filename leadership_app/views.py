@@ -7,6 +7,10 @@ from openai import AzureOpenAI
 from django.views.decorators.csrf import csrf_exempt
 from twilio.twiml.messaging_response import MessagingResponse
 from dotenv import load_dotenv
+from pathlib import Path
+
+
+load_dotenv()
 
 # Create your views here.
 def home(request):
@@ -25,7 +29,7 @@ def bold_text(text):
     return formatted_text
 
 def prompt_completion(message):
-    load_dotenv()
+    
     http_proxy = os.getenv('proxy')
     https_proxy = os.getenv('proxy')
     
@@ -109,7 +113,6 @@ def prompt_completion(message):
 @csrf_exempt
 def prompt_chat(request):
     
-    load_dotenv()
 
     http_proxy = os.getenv('proxy')
     https_proxy = os.getenv('proxy')
