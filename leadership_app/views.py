@@ -132,9 +132,6 @@ def prompt_chat(request):
             subscription_key = os.getenv('AZURE_OPENAI_API_KEY')
 
 
-            print(f"API Key: {os.getenv('AZURE_OPENAI_API_KEY')}")
-            print(f"Endpoint URL: {os.getenv('ENDPOINT_URL')}")
-
             # Initialize Azure OpenAI client with key-based authentication
             client = AzureOpenAI(  
                 azure_endpoint=endpoint,  
