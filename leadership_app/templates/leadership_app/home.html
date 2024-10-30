@@ -271,7 +271,7 @@ async function generateResponse(input) {
   document.getElementById('userInput').disabled = true;
   document.getElementById('chatSubmissionButton').disabled = true;
   event.preventDefault();
-  const endpoint = 'http://127.0.0.1:8000/message/'; // Replace with your chatbot endpoint URL
+  const endpoint = 'https://clc2024.azurewebsites.net/message/'; // Replace with your chatbot endpoint URL
   const payload = {
       question: input,
       conversation: conversationHistory
