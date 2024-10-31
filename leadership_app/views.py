@@ -1,3 +1,4 @@
+from datetime import date
 import json
 import os
 import re
@@ -14,7 +15,10 @@ load_dotenv()
 
 # Create your views here.
 def home(request):
-    return render(request, 'leadership_app/home.html')
+    load_dotenv()
+    chat_endpoint = os.getenv('CHAT_ENDPOINT')
+    context = {'CHAT_ENDPOINT': chat_endpoint}
+    return render(request, 'leadership_app/home.html', context)
 
 def remove_references(response):
     # This regex will match patterns like [doc1], [doc2], etc.
@@ -113,27 +117,34 @@ def prompt_completion(message):
 @csrf_exempt
 def prompt_chat(request):
     
+    load_dotenv()
 
-    http_proxy = os.getenv('proxy')
-    https_proxy = os.getenv('proxy')
+    # http_proxy = os.getenv('proxy')
+    # https_proxy = os.getenv('proxy')
     
     # if http_proxy:
     #     os.environ['http_proxy'] = http_proxy
     # if https_proxy:
     #     os.environ['https_proxy'] = https_proxy
-        
+    # Get the current date
+
+    current_date = date.today()
+
+    formatted_date = current_date.strftime("%B %d, %Y")
+    
+    prompt_date = f"Today's date is {formatted_date}."
+    
+
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
-        # input = data.get('question', '')
         conversions = data.get('conversation')
 
         try: 
             endpoint = os.getenv('ENDPOINT_URL')
             deployment = os.getenv('DEPLOYMENT_NAME') 
-            search_endpoint = os.getenv('SEARCH_ENDPOINT') 
-            search_key = os.getenv('SEARCH_KEY')
-            subscription_key = os.getenv('AZURE_OPENAI_API_KEY')
-
+            search_endpoint = os.getenv('SEARCH_ENDPOINT')
+            search_key = os.getenv('SEARCH_KEY') 
+            subscription_key = os.getenv('AZURE_OPENAI_API_KEY') 
 
             # Initialize Azure OpenAI client with key-based authentication
             client = AzureOpenAI(  
@@ -142,13 +153,15 @@ def prompt_chat(request):
                 api_version="2024-05-01-preview",  
             )                   
                                                                                 
-            personalized_message = "Y'ello! It seems I couldn't find this information. Could you please try rephrasing your query or ask about a different topic? I'm here to help!"
+            personalized_message = "Y'ello! It seems I couldn't find this information. Could you please try rephrasing your query or ask about a different topic? I'm here to help! Don't talk about any document provided to you find and don't response to any question related to indexed document"
                     
             # Prepare the chat prompt  
             chat_prompt = [
-                {"role": "system", "content": "You are the chat bot that help individuals that get information from the leadership conference organized by MTN Cameroon."},
-                {"role": "system", "content": "In MTN we use Y'ello instead of hello it helps rehenforce our mark and presence and consolidate our collaboration in MTN Cameroon. But say \"Y'ello my name is Leadership Conference(LC) GPT, I am here to assist you for information about the 2024 leadership conference of MTN Cameroon\" only at the begining of a conversion or when you are been asked."},
-
+                {"role": "system", "content": prompt_date},
+                {"role": "system", "content": "You are an AI assistant that help individuals to get information about the leadership conference organized by MTN Cameroon."},
+                {"role": "system", "content": "In MTN we use Y'ello instead of hello it helps rehenforce our mark and presence and consolidate our collaboration in MTN Cameroon. But say \"Y'ello, I am your assistant for the leadership conference 2024. How can I help you today ?\" only at the begining of a conversion or when you are been asked."},
+                {"role": "system", "content": "When ever you have a question that is not found in you dataset, say the following : {personalized_message}. When ever you a question to which you don't have a specific answer, make sure to precise it's an information you don't have."},
+                {"role": "system", "content": "When you are asked a question make sure to answer respecting the language of the question."},
                 ]
 
             for conversion in conversions:
@@ -176,9 +189,12 @@ def prompt_chat(request):
                     "fields_mapping": {},
                     "in_scope": True,
                     "role_information": f"""
-                   You are the chat bot that help individuals that get information from the leadership conference organized by MTN Cameroon.
-                    In MTN we use Y'ello instead of hello it helps rehenforce our mark and presence and consolidate our collaboration in MTN Cameroon. But say \"Y'ello my name is Leadership Conference(LC) GPT, I am here to assist you for information about the 2024 leadership conference of MTN Cameroon\" only at the begining of a conversion or when you are been asked.
-                    When ever you have a question that is not found in you dataset, say the following : {personalized_message}
+                    {prompt_date}
+                   You are an AI assistant that help individuals to get information about the leadership conference organized by MTN Cameroon.
+                    In MTN we use Y'ello instead of hello it helps rehenforce our mark and presence and consolidate our collaboration in MTN Cameroon. But say \"Y'ello, I am your assistant for the leadership conference 2024. How can I help you today ?\" make sure to translate a greeting according to the language when it's in french say \"Y'ello, je suis votre assistant pour la conférence de leadership 2024. Comment puis-je vous aider aujourd'hui ?\", only at the begining of a conversion or when you are been asked.
+                    When ever you have a question that is not found in you dataset, say the following : {personalized_message}. 
+                    When ever you a question to which you don't have a specific answer, make sure to precise it's an information you don't have.
+                    When you are asked a question make sure to answer respecting the language of the question.  
                     """,
                     "filter": None,
                     "strictness": 3,
@@ -201,8 +217,9 @@ def prompt_chat(request):
 
         except Exception as e: 
 
-            return JsonResponse({'response': f"An unexpected error occurred: {str(e)}"})           
-  
+            return JsonResponse({'response': f"An unexpected error occurred: {str(e)}"})
+        
+          
 @csrf_exempt        
 def test_completion(request):
     if request.method == 'POST':
