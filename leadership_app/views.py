@@ -153,8 +153,7 @@ def prompt_chat(request):
                 api_version="2024-05-01-preview",  
             )                   
                                                                                 
-            personalized_message = "Y'ello! It seems I couldn't find this information. Could you please try rephrasing your query or ask about a different topic? I'm here to help! Don't talk about any document provided to you find and don't response to any question related to indexed document"
-                    
+            personalized_message = "Y'ello! It seems I couldn't find this information. Could you please try rephrasing your query or ask about a topic concerning the leadership ? I'm here to help! Don't talk about any document provided to you find and don't response to any question related to indexed document"                    
             # Prepare the chat prompt  
             chat_prompt = [
                 {"role": "system", "content": prompt_date},
